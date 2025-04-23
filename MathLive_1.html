@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Mathcad en Español</title>
+    <!-- Cargar la versión más reciente de MathLive -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mathlive@0.104.2/dist/mathlive.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/mathlive@0.104.2/dist/mathlive.min.js"></script>
+    <style>
+        body {
+            margin: 10px;
+            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+        h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        math-field {
+            width: 100%;
+            max-width: 600px;
+            min-height: 150px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 1.2em;
+            background-color: #fafafa;
+            display: block;
+            box-sizing: border-box;
+        }
+        math-field:focus {
+            outline: none;
+            border-color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+    <h2>Mini Mathcad</h2>
+    <p>Escribe fórmulas directamente (ejemplo: x_2, a^2, \frac{1}{2}).</p>
+    <math-field id="mathEditor"></math-field>
+
+    <script>
+        console.log("1. Iniciando script...");
+
+        // Función para esperar a que MathLive se cargue
+        function waitForMathLive(callback) {
+            if (typeof MathLive !== 'undefined') {
+                console.log("2. MathLive está cargado:", MathLive);
+                callback();
+            } else {
+                console.log("Esperando a que MathLive se cargue...");
+                setTimeout(() => waitForMathLive(callback), 500);
+            }
+        }
+
+        // Inicializar el editor cuando MathLive esté cargado
+        waitForMathLive(() => {
+            // Verificar si el elemento math-field está presente
+            const mathEditor = document.getElementById('mathEditor');
+            if (!mathEditor) {
+                console.error("Error: No se encontró el elemento con id 'mathEditor'.");
+                return;
+            }
+            console.log("3. Elemento math-field encontrado:", mathEditor);
+
+            // Verificar si el componente web math-field está registrado
+            if (typeof customElements.get('math-field') === 'undefined') {
+                console.error("Error: El componente web 'math-field' no está registrado. MathLive puede no haberse inicializado correctamente.");
+                return;
+            }
+            console.log("4. Componente web 'math-field' registrado correctamente.");
+
+            // Configurar el editor para celular
+            try {
+                // Habilitar el teclado matemático al enfocar
+                mathEditor.setAttribute('virtual-keyboard-mode', 'onfocus');
+                // Usar un diseño optimizado para matemáticas
+                mathEditor.setAttribute('virtual-keyboard-layout', 'qwerty');
+                // Habilitar atajos matemáticos
+                mathEditor.setAttribute('keybindings', 'math');
+                // Asegurar que el editor sea editable
+                mathEditor.setAttribute('contenteditable', 'true');
+
+                // Establecer un valor inicial
+                mathEditor.value = 'x_2 = 1';
+                console.log("5. Valor inicial establecido:", mathEditor.value);
+
+                // Escuchar cambios en el editor
+                mathEditor.addEventListener('input', () => {
+                    console.log("6. Contenido LaTeX cambiado:", mathEditor.value);
+                });
+
+                // Verificar si el editor es visible
+                const rect = mathEditor.getBoundingClientRect();
+                console.log("7. Posición y tamaño del editor en la pantalla:", rect);
+                if (rect.height === 0 || rect.width === 0) {
+                    console.warn("Advertencia: El editor no parece estar visible (altura o ancho = 0).");
+                }
+            } catch (error) {
+                console.error("Error al configurar mathEditor:", error);
+            }
+        });
+    </script>
+</body>
+</html>
